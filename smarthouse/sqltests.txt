@@ -1,0 +1,21 @@
+-- INSERT INTO actuators VALUES("1a66c3d6-22b2-446e-bf5c-eb5b9d1a8c79","OFF","0")
+
+--DELETE FROM actuators
+
+-- SELECT * FROM actuators
+
+--UPDATE actuators
+--	SET state = "OFF"
+--	WHERE actuators.device = "8d4e4c98-21a9-4d1e-bf18-523285ad90f6"
+
+-- SELECT * FROM actuators a WHERE a.state = "8d4e4c98-21a9-4d1e-bf18-523285ad90f6"
+
+--SELECT * FROM actuators
+
+--SELECT * FROM actuators a WHERE a.device = "8d4e4c98-21a9-4d1e-bf18-523285ad90f6"
+
+--UPDATE actuators
+--SET state = "OFF"
+--WHERE actuators.device = "8d4e4c98-21a9-4d1e-bf18-523285ad90f6"
+
+SELECT * FROM actuators
