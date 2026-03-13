@@ -1,6 +1,6 @@
 import sqlite3
 from typing import Optional
-from smarthouse.domain import Measurement
+from smarthouse.domain import *
 
 class SmartHouseRepository:
     """
@@ -38,8 +38,69 @@ class SmartHouseRepository:
         """
         # TODO: START here! remove the following stub implementation and implement this function 
         #       by retrieving the data from the database via SQL `SELECT` statements.
-        return NotImplemented
+        cur = self.cursor()
 
+        res = cur.execute ('SELECT * FROM rooms')
+
+        rooms = res.fetchall()
+
+        # create SmartHouse object
+        smarthouse = SmartHouse()
+
+        # create floors
+        levels = set()  # for storing discovered levels
+        for room in rooms:
+            floor = room[1]
+            levels.add(floor)
+
+        for l in levels:
+            smarthouse.register_floor(l)
+
+        # register rooms
+        floors = smarthouse.get_floors()
+
+        ids_room = dict()
+
+        for room in rooms:
+
+            id = room[0]
+            level = room[1]
+            area = room[2]
+            name = room[3]
+
+            for f in floors:
+                if f.level == level:
+                    r = smarthouse.register_room(f,area,name)
+                    ids_room.update({id:r})
+
+        # print(ids_room)
+        # create and register devices
+
+        res = cur.execute('SELECT * FROM devices')
+
+        devices = res.fetchall()
+
+        # print(devices)
+
+        for device in devices:
+            id = device[0]
+            room_number = device[1]
+            kind = device[2]
+            category = device[3]
+            supplier = device[4]
+            product = device[5]
+
+            d = None
+            if category == 'sensor':
+                d = Sensor(id,product,supplier,kind) # why no unit here?
+            elif category == 'actuator':
+                d = Actuator(id,product,supplier,kind)
+
+            r = ids_room.get(room_number)
+
+            smarthouse.register_device(r,d)
+
+        return smarthouse
 
     def get_latest_reading(self, sensor) -> Optional[Measurement]:
         """
@@ -47,8 +108,24 @@ class SmartHouseRepository:
         Returns None if the given object has no sensor readings.
         """
         # TODO: After loading the smarthouse, continue here
-        return NotImplemented
 
+        did = sensor.id
+
+        cur = self.cursor()
+
+        res = cur.execute(f'SELECT * FROM measurements m where m.device = "{did}" ORDER BY m.ts DESC')
+
+        m = res.fetchone()
+
+        if m is not None:
+
+            ts = m[1]
+            value = m[2]
+            unit = m[3]
+
+            return Measurement(ts,value,unit)
+
+        return None
 
     def update_actuator_state(self, actuator):
         """
@@ -58,8 +135,22 @@ class SmartHouseRepository:
         #       by creating a new table (`CREATE`), adding some data to it (`INSERT`) first, and then issue
         #       and SQL `UPDATE` statement. Remember also that you will have to call `commit()` on the `Connection`
         #       stored in the `self.conn` instance variable.
-        pass
+        # CREATE TABLE actuators(
+        #    device TEXT NOT NULL,
+        #    state TEXT,
+        #    value TEXT
+        # )
+        cur = self.cursor()
 
+        # TODO: insert actuators with state as part of deep method
+
+        #res = cur.execute('SELECT * FROM actuators')
+
+        # states = res.fetchall()
+        print('X')
+        print(states)
+
+        pass
 
     # statistics
 
